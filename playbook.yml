@@ -1,0 +1,125 @@
+---
+- name: Mimetic Desktop Playbook
+  hosts: all
+  connection: local
+
+  vars_files:
+    - vars/main.yml
+
+  pre_tasks:
+
+    - name: Warn users if the server's Linux distribution is not GalliumOS 2.1
+      pause:
+        prompt: "GalliumOS is the only officially supported distribution; the setup will probably fail. Press Enter if you still want to continue."
+      when: ansible_distribution != "GalliumOS" or ansible_distribution_version != "16.04" or ansible_lsb.description.split(' ')[0] != "GalliumOS"
+
+    - name: Run configured pre-provision shell scripts
+      script: "{{ item }}"
+      with_items: "{{ mimetic_pre_provision_scripts | default([]) }}"
+      when: mimetic_pre_provision_scripts | length
+
+    - name: Include optional configuration files
+      include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/vault.yml"
+        - "{{ playbook_dir }}/vars/vault.yml"
+        - "{{ playbook_dir }}/vars/secrets.yml"
+        - "{{ playbook_dir }}/secrets.yml"
+        - "{{ playbook_dir }}/vars/config.yml"
+        - "{{ playbook_dir }}/local.config.yml"
+
+    - name: Upgrade packages
+      become: yes
+      apt:
+        upgrade: safe
+        update_cache: yes
+        cache_valid_time: 300
+
+  roles:
+
+    # Base roles
+    # - { role: common, become: true, tags: ['base'] }
+    # - { role: admin,  become: true, tags: ['base'] }
+    # - { role: ssh,    become: true, tags: ['base'] }
+    # - { role: git,    become: true, tags: ['base'] }
+
+    # Browser roles
+    # - { role: chromium, become: true, tags: ['browser'] }
+    # - { role: firefox,  become: true, tags: ['browser'] }
+    # - { role: chrome,   become: true, tags: ['browser'] }
+    # - { role: tor,      become: true, tags: ['browser'] }
+
+    # Editor roles
+    # - { role: sublime, become: true, tags: ['editor'] }
+    # - { role: atom,    become: true, tags: ['editor'] }
+    # - { role: vscode,  become: true, tags: ['editor'] }
+
+    # Desktop roles
+    # - { role: desktop,     become: true, tags: ['desktop'] }
+    # - { role: albert,      become: true, when: '"albert" in mimetic_apps', tags: ['desktop'] }
+    # - { role: altyo,       become: true, when: '"altyo" in mimetic_apps', tags: ['desktop'] }
+    # - { role: gimp,        become: true, when: '"gimp" in mimetic_apps', tags: ['desktop'] }
+    # - { role: inkscape,    become: true, when: '"inkscape" in mimetic_apps', tags: ['desktop'] }
+    # - { role: filezilla,   become: true, when: '"filezilla" in mimetic_apps', tags: ['desktop'] }
+    # - { role: obs,         become: true, when: '"obs" in mimetic_apps', tags: ['desktop'] }
+    # - { role: audacity,    become: true, when: '"audacity" in mimetic_apps', tags: ['desktop'] }
+    # - { role: blender,     become: true, when: '"blender" in mimetic_apps', tags: ['desktop'] }
+    # - { role: libreoffice, become: true, when: '"libreoffice" in mimetic_apps', tags: ['desktop'] }
+    # - { role: minecraft,   become: true, when: '"minecraft" in mimetic_apps', tags: ['desktop'] }
+    # - { role: themes,      become: true, tags: ['desktop'] }
+    # - { role: xfce,        become: true, tags: ['desktop'] }
+
+    # Server roles
+    # - { role: apache, when: mimetic_webserver == 'apache', become: true, tags: ['server'] }
+    # - { role: nginx,  when: mimetic_webserver == 'nginx',  become: true, tags: ['server'] }
+
+    # Language roles
+    # - { role: java,   become: true, when: '"java" in mimetic_langs',   tags: ['languages'] }
+    # - { role: python, become: true, when: '"python" in mimetic_langs', tags: ['languages'] }
+    # - { role: ruby,   become: true, when: '"ruby" in mimetic_langs',   tags: ['languages'] }
+    # - { role: node,   become: true, when: '"node" in mimetic_langs',   tags: ['languages'] }
+    # - { role: php,    become: true, when: '"php" in mimetic_langs',    tags: ['languages'] }
+
+    # Database roles
+    # - { role: mysql,      become: true, when: '"mysql" in mimetic_dbs',  tags: ['database'] }
+    # - { role: postgresql, become: true, when: '"pgsql" in mimetic_dbs',  tags: ['database'] }
+    # - { role: mongodb,    become: true, when: '"mongodb" in mimetic_dbs',  tags: ['database'] }
+    # - { role: sqlite,     become: true, when: '"sqlite" in mimetic_dbs', tags: ['database'] }
+
+    # PHP roles
+    # - { role: composer,   become: true, when: '"php" in mimetic_langs and "composer" in mimetic_utils',   tags: ['php'] }
+    # - { role: blackfire,  become: true, when: '"php" in mimetic_langs and "blackfire" in mimetic_utils',  tags: ['php'] }
+
+    # Utility roles
+    # - { role: postfix,    become: true, when: '"postfix" in mimetic_utils',    tags: ['utility'] }
+    # - { role: daemonize,  become: true, when: '"daemonize" in mimetic_utils',  tags: ['utility'] }
+    # - { role: docker,     become: true, when: '"docker" in mimetic_utils',     tags: ['utility'] }
+    # - { role: adminer,    become: true, when: '"adminer" in mimetic_utils',    tags: ['utility'] }
+    # - { role: beanstalkd, become: true, when: '"beanstalkd" in mimetic_utils', tags: ['utility'] }
+    # - { role: memcached,  become: true, when: '"memcached" in mimetic_utils',  tags: ['utility'] }
+    # - { role: pimpmylog,  become: true, when: '"pimpmylog" in mimetic_utils',  tags: ['utility'] }
+    # - { role: redis,      become: true, when: '"redis" in mimetic_utils',      tags: ['utility'] }
+    # - { role: selenium,   become: true, when: '"selenium" in mimetic_utils',   tags: ['utility'] }
+    # - { role: phantomjs,  become: true, when: '"phantomjs" in mimetic_utils',  tags: ['utility'] }
+    # - { role: mailhog,    become: true, when: '"mailhog" in mimetic_utils',    tags: ['utility'] }
+    # - { role: ngrok,      become: true, when: '"ngrok" in mimetic_utils',      tags: ['utility'] }
+
+    # Extra roles
+    # - { role: dotfiles, become: true, tags: ['extras'] }
+    # - { role: www, become: true, tags: ['extras'] }
+
+  tasks:
+
+    - name: Run configured post-provision shell scripts
+      script: "{{ item }}"
+      with_items: "{{ mimetic_post_provision_scripts | default([]) }}"
+      when: mimetic_post_provision_scripts | length
+
+    - name: Autoremove apt packages
+      become: yes
+      apt:
+        autoremove: yes
+
+    - name: Cleanup apt installation
+      become: yes
+      command: apt-get clean warn=no
