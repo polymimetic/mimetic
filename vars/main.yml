@@ -74,3 +74,55 @@ mimetic_utils:
 #####################################################################
 ### ROLE VARS ###
 #####################################################################
+
+# Common role
+common_apt_remove_packages:
+  - xterm
+  - simple-scan
+
+common_apt_custom_packages: []
+
+# Admin role
+admin_user: "{{ mimetic_user }}"
+admin_home: "{{ mimetic_home }}"
+admin_fullname: "{{ mimetic_name }}"
+admin_custom_groups: []
+admin_shell: "{{ mimetic_shell }}"
+
+# SSH role
+ssh_user: "{{ mimetic_user }}"
+ssh_home: "{{ mimetic_home }}"
+ssh_key_comment: "{{ mimetic_email }}"
+
+# Git role
+git_config_name: "{{ mimetic_name }}"
+git_config_email: "{{ mimetic_email }}"
+git_github_user: "{{ mimetic_github_user }}"
+git_github_password: "{{ mimetic_github_password }}"
+git_bitbucket_user: "{{ mimetic_bitbucket_user }}"
+git_bitbucket_password: "{{ mimetic_bitbucket_password }}"
+
+# Node.js configuration (if enabled above).
+# Valid examples: "0.10", "0.12", "4.x", "5.x", "6.x".
+nodejs_version: "8.x"
+nodejs_install_npm_user: "{{ mimetic_user }}"
+npm_config_prefix: "/home/{{ mimetic_user }}/.npm-global"
+npm_global_packages:
+  - name: gulp-cli
+  - name: bower
+  - name: yarn
+  - name: grunt-cli
+  - name: browser-sync
+  - name: webpack
+  - name: webpack-dev-server
+  - name: yo
+  - name: less
+  - name: node-sass
+  - name: jslint
+  # - name: npm-check-updates
+  # - name: phantomjs-prebuilt
+  # - name: casperjs
+  # - name: simplehttpserver
+  # - name: xlsx
+  # - name: webfont-dl
+  # - name: diff-so-fancy
